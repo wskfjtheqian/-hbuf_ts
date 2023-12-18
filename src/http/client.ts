@@ -12,7 +12,7 @@ export class HttpClientJson implements Client {
             request.open("POST", this.baseUrl + "/" + serverName + name, false)
             request.setRequestHeader('Content-Type', 'application/json');
 
-            request.send(JSON.stringify(req))
+            request.send(JSON.stringify(req.toJson()))
 
             if (request.status != 200) {
                 reject(request.responseText)
