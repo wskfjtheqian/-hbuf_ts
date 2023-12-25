@@ -1,6 +1,7 @@
 import {Data} from "./hbuf/data";
 import {Context, Result, Client, ServerClient} from "./hbuf/server";
-import {HttpClientJson} from "./http/client";
+import {HttpClientJson, RequestInterceptor, ResponseInterceptor} from "./http/client";
+import {waiting, arrayMap} from "./utils/tools";
 
 export {
     Data,
@@ -8,6 +9,10 @@ export {
     Result,
     Client,
     ServerClient,
-    HttpClientJson
+    HttpClientJson,
+    RequestInterceptor,
+    ResponseInterceptor,
+    waiting,
+    arrayMap,
 }
 

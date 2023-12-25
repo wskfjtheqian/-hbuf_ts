@@ -10,7 +10,7 @@ export class Result {
     data?: any
 }
 
-export interface Client {
+export interface   Client {
     invoke<T>(
         serverName: string,
         serverId: number,
