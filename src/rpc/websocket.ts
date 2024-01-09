@@ -23,7 +23,7 @@ export class SocketInterceptor {
 }
 
 
-class WebsocketData {
+export class WebsocketData {
     constructor(type: RpcType, header: Record<string, string[]>, data: any, id: number, path: string, status: number) {
         this.type = type;
         this.data = data;
