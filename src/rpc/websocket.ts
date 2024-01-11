@@ -162,12 +162,17 @@ export class WebsocketClientJson implements Client {
 
     private onMessage(event: MessageEvent) {
         event.data.arrayBuffer().then((value: ArrayBuffer) => {
-            let response = JSON.parse(this.decoder.decode(value))
-            if (response.status == 200) {
-                this.requestMap.get(response.id)?.resolve(response)
-            } else {
-                this.requestMap.get(response.id)?.reject(response)
+            let response = JSON.parse(this.decoder.decode(value)) as WebsocketData
+            if (response.type == RpcType.Request) {
+
+            } else if (response.type == RpcType.Response) {
+                if (response.status == 200) {
+                    this.requestMap.get(response.id)?.resolve(response)
+                } else {
+                    this.requestMap.get(response.id)?.reject(response)
+                }
             }
+
         }).catch((e: any) => {
             console.log(e)
         })
