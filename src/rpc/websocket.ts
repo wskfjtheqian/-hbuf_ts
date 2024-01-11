@@ -24,7 +24,7 @@ export class SocketInterceptor {
 
 
 export class WebsocketData {
-    constructor(type: RpcType, header: Record<string, string[]>, data: any, id: number, path: string, status: number) {
+    constructor(type: RpcType, header: Record<string, string[]>, data: Data, id: number, path: string, status: number) {
         this.type = type;
         this.data = data;
         this.header = header;
@@ -35,10 +35,21 @@ export class WebsocketData {
 
     type: RpcType
     header: Record<string, string[]> = {}
-    data: any
+    data: Data
     id: number
     path: string
     status: number
+
+    toJson(): Record<string, any> {
+        return {
+            type: this.type,
+            header: this.header,
+            data: this.data?.toJson(),
+            id: this.id,
+            path: this.path,
+            status: this.status,
+        }
+    }
 }
 
 class PromiseCall {
@@ -102,7 +113,7 @@ export class WebsocketClientJson implements Client {
             }
         });
 
-        this.socket?.send(this.encoder.encode(JSON.stringify(data)).buffer)
+        this.socket?.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer)
         return ret
     }
 
