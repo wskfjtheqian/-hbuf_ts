@@ -1,4 +1,4 @@
-import {Client, Result} from "../hbuf/server"
+import {Client, Result} from "./rpc"
 import {Data} from "../hbuf/data";
 
 type HttpRequestInvoke = (request: XMLHttpRequest, data: any, next?: HttpRequestInterceptor) => void
@@ -64,7 +64,7 @@ export class HttpClientJson implements Client {
         this.responseInterceptor = new HttpResponseInterceptor(invoke, this.responseInterceptor)
     }
 
-    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: (json: {}) => T, fromData: (json: BinaryData) => T): Promise<T> {
+    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: (json: Record<string, any>) => T, fromData: (json: BinaryData) => T): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             let request = new XMLHttpRequest()
             request.open("POST", this.baseUrl + "/" + serverName + "/" + name, true)
@@ -82,7 +82,7 @@ export class HttpClientJson implements Client {
                     if (0 != result.code) {
                         reject(result)
                     } else {
-                        resolve(fromJson(result.data))
+                        resolve(fromJson(result.data || {}))
                     }
                 }
             }
