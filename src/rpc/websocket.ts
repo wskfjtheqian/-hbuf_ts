@@ -104,10 +104,14 @@ export class WebsocketClientJson implements Client {
         })
     }
 
-    public connect(): Promise<void> {
+    public connect(prams?: URLSearchParams): Promise<void> {
+        let url = new URL(this.baseUrl)
+        prams?.forEach((value, key, parent) => {
+            url.searchParams.append(key, value)
+        })
         return new Promise((resolve, reject) => {
             try {
-                this.socket = new WebSocket(this.baseUrl)
+                this.socket = new WebSocket(url)
                 this.socket.onclose = (event) => this.onClose(event)
                 this.socket.onerror = (event) => {
                     reject(event)
@@ -122,9 +126,14 @@ export class WebsocketClientJson implements Client {
         })
     }
 
+    public close() {
+        this.socket?.close()
+    }
+
     private onClose(event: CloseEvent) {
 
     }
+
 
     private onMessage(event: MessageEvent) {
         event.data.arrayBuffer().then((value: ArrayBuffer) => {
