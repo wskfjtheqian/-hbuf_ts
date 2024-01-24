@@ -26,7 +26,7 @@ export declare class WebsocketClientJson implements Client {
     insertInterceptor(invoke: SocketInvoke): void;
     private socketInvoke;
     invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: (json: {}) => T, fromData: (json: BinaryData) => T): Promise<T>;
-    connect(prams?: URLSearchParams): Promise<void>;
+    connect(prams?: Record<string, string[]>): Promise<void>;
     close(): void;
     private onClose;
     private onMessage;

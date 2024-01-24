@@ -118,10 +118,18 @@ var WebsocketClientJson = /** @class */ (function () {
     };
     WebsocketClientJson.prototype.connect = function (prams) {
         var _this = this;
-        var url = new URL(this.baseUrl);
-        prams === null || prams === void 0 ? void 0 : prams.forEach(function (value, key, parent) {
-            url.searchParams.append(key, value);
-        });
+        var url = this.baseUrl;
+        if (prams) {
+            var temp = "";
+            for (var key in prams) {
+                for (var index in prams[key]) {
+                    temp += "&" + encodeURI(key) + "=" + encodeURI(prams[key][index]);
+                }
+            }
+            if (temp.length > 0) {
+                url += (-1 == url.indexOf("?") ? "?" : "&") + prams.toString();
+            }
+        }
         return new Promise(function (resolve, reject) {
             try {
                 _this.socket = new WebSocket(url);

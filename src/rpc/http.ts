@@ -73,7 +73,7 @@ export class HttpClientJson implements Client {
             this.requestInterceptor.invoke(request, JSON.stringify(req.toJson()), this.requestInterceptor.next)
 
             request.onreadystatechange = () => {
-                if (request.readyState === 4) {
+                if (request.readyState === XMLHttpRequest.DONE) {
                     if (request.status !== 200) {
                         reject(request.responseText)
                     }
@@ -97,4 +97,8 @@ export class HttpClientJson implements Client {
     private response(request: XMLHttpRequest, data: any, next?: HttpResponseInterceptor): any {
         return request.responseText
     }
+}
+
+class URLParams {
+
 }

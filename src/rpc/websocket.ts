@@ -104,11 +104,19 @@ export class WebsocketClientJson implements Client {
         })
     }
 
-    public connect(prams?: URLSearchParams): Promise<void> {
-        let url = new URL(this.baseUrl)
-        prams?.forEach((value, key, parent) => {
-            url.searchParams.append(key, value)
-        })
+    public connect(prams?: Record<string, string[]>): Promise<void> {
+        let url = this.baseUrl
+        if (prams) {
+            let temp = ""
+            for (const key in prams) {
+                for (const index in prams[key]) {
+                    temp += "&" + encodeURI(key) + "=" + encodeURI(prams[key][index])
+                }
+            }
+            if (temp.length > 0) {
+                url += (-1 == url.indexOf("?") ? "?" : "&") + prams.toString()
+            }
+        }
         return new Promise((resolve, reject) => {
             try {
                 this.socket = new WebSocket(url)
