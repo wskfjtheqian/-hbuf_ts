@@ -123,11 +123,11 @@ var WebsocketClientJson = /** @class */ (function () {
             var temp = "";
             for (var key in prams) {
                 for (var index in prams[key]) {
-                    temp += "&" + encodeURI(key) + "=" + encodeURI(prams[key][index]);
+                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(prams[key][index]);
                 }
             }
             if (temp.length > 0) {
-                url += (-1 == url.indexOf("?") ? "?" : "&") + prams.toString();
+                url += (-1 == url.indexOf("?") ? "?" : "&") + temp.substring(1);
             }
         }
         return new Promise(function (resolve, reject) {

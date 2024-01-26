@@ -110,11 +110,11 @@ export class WebsocketClientJson implements Client {
             let temp = ""
             for (const key in prams) {
                 for (const index in prams[key]) {
-                    temp += "&" + encodeURI(key) + "=" + encodeURI(prams[key][index])
+                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(prams[key][index])
                 }
             }
             if (temp.length > 0) {
-                url += (-1 == url.indexOf("?") ? "?" : "&") + prams.toString()
+                url += (-1 == url.indexOf("?") ? "?" : "&") + temp.substring(1);
             }
         }
         return new Promise((resolve, reject) => {

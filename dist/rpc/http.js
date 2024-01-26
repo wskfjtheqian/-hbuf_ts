@@ -51,7 +51,7 @@ var HttpClientJson = /** @class */ (function () {
             request.setRequestHeader('Content-Type', 'application/json');
             _this.requestInterceptor.invoke(request, JSON.stringify(req.toJson()), _this.requestInterceptor.next);
             request.onreadystatechange = function () {
-                if (request.readyState === XMLHttpRequest.DONE) {
+                if (request.readyState === 4) {
                     if (request.status !== 200) {
                         reject(request.responseText);
                     }
