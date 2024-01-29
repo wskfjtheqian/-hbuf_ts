@@ -60,18 +60,18 @@ export class WebsocketClientJson implements Client {
     private socketInvoke(data: RpcData, next?: SocketInterceptor): Promise<RpcData> {
         const ret = new Promise<RpcData>((resolve, reject) => {
             let promise = new PromiseCall((value) => {
-                if (this.requestMap.delete(this.requestId)) {
+                if (this.requestMap.delete(data.id)) {
                     resolve(value)
                 }
             }, (e) => {
-                if (this.requestMap.delete(this.requestId)) {
+                if (this.requestMap.delete(data.id)) {
                     reject(e)
                 }
             })
             setTimeout(() => {
                 reject("timeout")
             }, this.readTimeout)
-            this.requestMap.set(this.requestId, promise)
+            this.requestMap.set(data.id, promise)
         }).then((value: RpcData) => {
             if (next != null) {
                 return next.invoke(value, next.next)
