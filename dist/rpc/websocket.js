@@ -80,18 +80,18 @@ var WebsocketClientJson = /** @class */ (function () {
         var _a;
         var ret = new Promise(function (resolve, reject) {
             var promise = new PromiseCall(function (value) {
-                if (_this.requestMap.delete(_this.requestId)) {
+                if (_this.requestMap.delete(data.id)) {
                     resolve(value);
                 }
             }, function (e) {
-                if (_this.requestMap.delete(_this.requestId)) {
+                if (_this.requestMap.delete(data.id)) {
                     reject(e);
                 }
             });
             setTimeout(function () {
                 reject("timeout");
             }, _this.readTimeout);
-            _this.requestMap.set(_this.requestId, promise);
+            _this.requestMap.set(data.id, promise);
         }).then(function (value) {
             if (next != null) {
                 return next.invoke(value, next.next);
