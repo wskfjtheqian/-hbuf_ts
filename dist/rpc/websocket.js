@@ -61,6 +61,10 @@ var WebsocketClientJson = /** @class */ (function () {
         this.decoder = new TextDecoder();
         this.encoder = new TextEncoder();
         this.readTimeout = 30000;
+        this.interval = null;
+        this.heartbeat = 30000;
+        this.headTimeout = false;
+        this.isOpen = false;
         this.baseUrl = baseUrl;
         this.server = server;
         this.interceptor = new SocketInterceptor(function (data, next) { return _this.socketInvoke(data, next); });
@@ -118,6 +122,7 @@ var WebsocketClientJson = /** @class */ (function () {
     };
     WebsocketClientJson.prototype.connect = function (prams) {
         var _this = this;
+        this.prams = prams;
         var url = this.baseUrl;
         if (prams) {
             var temp = "";
@@ -134,13 +139,10 @@ var WebsocketClientJson = /** @class */ (function () {
             try {
                 _this.socket = new WebSocket(url);
                 _this.socket.onclose = function (event) { return _this.onClose(event); };
-                _this.socket.onerror = function (event) {
-                    reject(event);
-                };
+                _this.socket.onerror = function (event) { return reject(event); };
                 _this.socket.onmessage = function (event) { return _this.onMessage(event); };
-                _this.socket.onopen = function (event) {
-                    resolve();
-                };
+                _this.socket.onopen = function (event) { return resolve(); };
+                _this.interval = setInterval(function () { return _this.onHeartbeat(); }, _this.heartbeat);
             }
             catch (e) {
                 reject(e);
@@ -149,28 +151,55 @@ var WebsocketClientJson = /** @class */ (function () {
     };
     WebsocketClientJson.prototype.close = function () {
         var _a;
+        this.isOpen = false;
         (_a = this.socket) === null || _a === void 0 ? void 0 : _a.close();
     };
     WebsocketClientJson.prototype.onClose = function (event) {
+        if (this.isOpen) {
+            this.connect(this.prams);
+        }
     };
     WebsocketClientJson.prototype.onMessage = function (event) {
-        var _this = this;
-        event.data.arrayBuffer().then(function (value) {
-            var _a, _b;
-            var response = JSON.parse(_this.decoder.decode(value));
-            if (response.type == rpc_1.RpcType.Request) {
-                _this.onRequest(response);
-            }
-            else if (response.type == rpc_1.RpcType.Response) {
-                if (response.status == 200) {
-                    (_a = _this.requestMap.get(response.id)) === null || _a === void 0 ? void 0 : _a.resolve(response);
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var value, response, e_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _c.trys.push([0, 7, , 8]);
+                        value = void 0;
+                        if (!(event.type == "arrayBuffer")) return [3 /*break*/, 1];
+                        value = event.data;
+                        return [3 /*break*/, 3];
+                    case 1: return [4 /*yield*/, event.data.arrayBuffer()];
+                    case 2:
+                        value = _c.sent();
+                        _c.label = 3;
+                    case 3:
+                        response = JSON.parse(this.decoder.decode(value));
+                        if (!(response.type == rpc_1.RpcType.Request)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.onRequest(response)];
+                    case 4:
+                        _c.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        if (response.type == rpc_1.RpcType.Response) {
+                            if (response.status == 200) {
+                                (_a = this.requestMap.get(response.id)) === null || _a === void 0 ? void 0 : _a.resolve(response);
+                            }
+                            else {
+                                (_b = this.requestMap.get(response.id)) === null || _b === void 0 ? void 0 : _b.reject(response);
+                            }
+                        }
+                        _c.label = 6;
+                    case 6: return [3 /*break*/, 8];
+                    case 7:
+                        e_1 = _c.sent();
+                        console.log(e_1);
+                        return [3 /*break*/, 8];
+                    case 8: return [2 /*return*/];
                 }
-                else {
-                    (_b = _this.requestMap.get(response.id)) === null || _b === void 0 ? void 0 : _b.reject(response);
-                }
-            }
-        }).catch(function (e) {
-            console.log(e);
+            });
         });
     };
     WebsocketClientJson.prototype.onRequest = function (request) {
@@ -180,6 +209,7 @@ var WebsocketClientJson = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        this.headTimeout = true;
                         if (!this.server) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.server.invoke(request)];
                     case 1:
@@ -194,6 +224,19 @@ var WebsocketClientJson = /** @class */ (function () {
                 }
             });
         });
+    };
+    WebsocketClientJson.prototype.onHeartbeat = function () {
+        var _a;
+        if ((_a = this.socket) === null || _a === void 0 ? void 0 : _a.OPEN) {
+            if (!this.headTimeout) {
+                this.socket.close();
+                this.connect(this.prams);
+            }
+            this.socket.send(this.encoder.encode(JSON.stringify({
+                type: rpc_1.RpcType.Heartbeat
+            })));
+            this.headTimeout = false;
+        }
     };
     return WebsocketClientJson;
 }());

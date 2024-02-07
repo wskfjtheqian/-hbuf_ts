@@ -41,6 +41,8 @@ var RpcType;
 (function (RpcType) {
     RpcType[RpcType["Request"] = 0] = "Request";
     RpcType[RpcType["Response"] = 1] = "Response";
+    RpcType[RpcType["Broadcast"] = 2] = "Broadcast";
+    RpcType[RpcType["Heartbeat"] = 3] = "Heartbeat";
 })(RpcType || (exports.RpcType = RpcType = {}));
 var Context = /** @class */ (function () {
     function Context() {
