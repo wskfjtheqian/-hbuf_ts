@@ -151,13 +151,13 @@ export class WebsocketClientJson implements Client {
     private async onMessage(event: MessageEvent) {
         try {
             let value: ArrayBuffer
-            if (event.type == "arrayBuffer") {
-                value = event.data
+            if (Object.is(event.data, Blob)) {
+                value = await (event.data as Blob).arrayBuffer();
             } else {
-                value = await event.data.arrayBuffer();
+                value = event.data
             }
 
-            let response = JSON.parse(this.decoder.decode(value)) as RpcData
+            let response = JSON.parse(this.decoder.decode(new Uint8Array(value))) as RpcData
             if (response.type == RpcType.Request) {
                 await this.onRequest(response)
             } else if (response.type == RpcType.Response) {

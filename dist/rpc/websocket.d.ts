@@ -20,6 +20,11 @@ export declare class WebsocketClientJson implements Client {
     protected encoder: TextEncoder;
     readTimeout: number;
     protected server?: Server;
+    private interval;
+    private heartbeat;
+    private headTimeout;
+    private prams;
+    private isOpen;
     constructor(baseUrl: string, server?: Server);
     protected interceptor: SocketInterceptor;
     addInterceptor(invoke: SocketInvoke): void;
@@ -31,5 +36,6 @@ export declare class WebsocketClientJson implements Client {
     private onClose;
     private onMessage;
     private onRequest;
+    private onHeartbeat;
 }
 export {};

@@ -1,7 +1,9 @@
 import { Data } from "../hbuf/data";
 export declare enum RpcType {
     Request = 0,
-    Response = 1
+    Response = 1,
+    Broadcast = 2,
+    Heartbeat = 3
 }
 export declare class Context {
 }
