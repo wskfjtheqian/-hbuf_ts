@@ -151,7 +151,7 @@ export class WebsocketClientJson implements Client {
     private async onMessage(event: MessageEvent) {
         try {
             let value: ArrayBuffer
-            if (Object.is(event.data, Blob)) {
+            if (event.data instanceof Blob) {
                 value = await (event.data as Blob).arrayBuffer();
             } else {
                 value = event.data
