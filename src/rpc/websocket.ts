@@ -36,6 +36,11 @@ export class WebsocketClientJson implements Client {
     protected encoder: TextEncoder = new TextEncoder()
     public readTimeout: number = 30000;
     protected server?: Server
+    private interval: number | null = null;
+    private heartbeat: number = 30000;
+    private headTimeout: boolean = false;
+    private prams: Record<string, string[]> | undefined;
+    private isOpen: boolean = false;
 
     constructor(baseUrl: string, server?: Server) {
         this.baseUrl = baseUrl;
@@ -105,6 +110,7 @@ export class WebsocketClientJson implements Client {
     }
 
     public connect(prams?: Record<string, string[]>): Promise<void> {
+        this.prams = prams
         let url = this.baseUrl
         if (prams) {
             let temp = ""
@@ -121,13 +127,10 @@ export class WebsocketClientJson implements Client {
             try {
                 this.socket = new WebSocket(url)
                 this.socket.onclose = (event) => this.onClose(event)
-                this.socket.onerror = (event) => {
-                    reject(event)
-                }
+                this.socket.onerror = (event) => reject(event)
                 this.socket.onmessage = (event) => this.onMessage(event)
-                this.socket.onopen = (event) => {
-                    resolve()
-                }
+                this.socket.onopen = (event) => resolve()
+                this.interval = setInterval(() => this.onHeartbeat(), this.heartbeat)
             } catch (e) {
                 reject(e)
             }
@@ -135,19 +138,28 @@ export class WebsocketClientJson implements Client {
     }
 
     public close() {
+        this.isOpen = false
         this.socket?.close()
     }
 
     private onClose(event: CloseEvent) {
-
+        if (this.isOpen) {
+            this.connect(this.prams)
+        }
     }
 
+    private async onMessage(event: MessageEvent) {
+        try {
+            let value: ArrayBuffer
+            if (event.type == "arrayBuffer") {
+                value = event.data
+            } else {
+                value = await event.data.arrayBuffer();
+            }
 
-    private onMessage(event: MessageEvent) {
-        event.data.arrayBuffer().then((value: ArrayBuffer) => {
             let response = JSON.parse(this.decoder.decode(value)) as RpcData
             if (response.type == RpcType.Request) {
-                this.onRequest(response)
+                await this.onRequest(response)
             } else if (response.type == RpcType.Response) {
                 if (response.status == 200) {
                     this.requestMap.get(response.id)?.resolve(response)
@@ -155,13 +167,13 @@ export class WebsocketClientJson implements Client {
                     this.requestMap.get(response.id)?.reject(response)
                 }
             }
-
-        }).catch((e: any) => {
+        } catch (e) {
             console.log(e)
-        })
+        }
     }
 
     private async onRequest(request: RpcData) {
+        this.headTimeout = true
         let data: RpcData
         if (this.server) {
             data = await this.server.invoke(request)
@@ -174,6 +186,19 @@ export class WebsocketClientJson implements Client {
             )
         }
         this.socket?.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer)
+    }
+
+    private onHeartbeat() {
+        if (this.socket?.OPEN) {
+            if (!this.headTimeout) {
+                this.socket.close()
+                this.connect(this.prams)
+            }
+            this.socket.send(this.encoder.encode(JSON.stringify({
+                type: RpcType.Heartbeat
+            })))
+            this.headTimeout = false
+        }
     }
 }
 
