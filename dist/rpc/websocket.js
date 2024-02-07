@@ -168,15 +168,16 @@ var WebsocketClientJson = /** @class */ (function () {
                     case 0:
                         _c.trys.push([0, 7, , 8]);
                         value = void 0;
-                        if (!(event.type == "arrayBuffer")) return [3 /*break*/, 1];
-                        value = event.data;
-                        return [3 /*break*/, 3];
-                    case 1: return [4 /*yield*/, event.data.arrayBuffer()];
-                    case 2:
+                        if (!Object.is(event.data, Blob)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, event.data.arrayBuffer()];
+                    case 1:
                         value = _c.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        value = event.data;
                         _c.label = 3;
                     case 3:
-                        response = JSON.parse(this.decoder.decode(value));
+                        response = JSON.parse(this.decoder.decode(new Uint8Array(value)));
                         if (!(response.type == rpc_1.RpcType.Request)) return [3 /*break*/, 5];
                         return [4 /*yield*/, this.onRequest(response)];
                     case 4:
