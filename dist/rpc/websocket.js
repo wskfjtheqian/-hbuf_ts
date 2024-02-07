@@ -167,7 +167,7 @@ var WebsocketClientJson = /** @class */ (function () {
                 switch (_c.label) {
                     case 0:
                         _c.trys.push([0, 7, , 8]);
-                        this.headTimeout = true;
+                        this.headTimeout = false;
                         value = void 0;
                         if (!(event.data instanceof Blob)) return [3 /*break*/, 2];
                         return [4 /*yield*/, event.data.arrayBuffer()];
@@ -229,7 +229,7 @@ var WebsocketClientJson = /** @class */ (function () {
     WebsocketClientJson.prototype.onHeartbeat = function () {
         var _a;
         if ((_a = this.socket) === null || _a === void 0 ? void 0 : _a.OPEN) {
-            if (!this.headTimeout) {
+            if (this.headTimeout) {
                 this.socket.close();
                 this.connect(this.prams);
                 return;
@@ -237,7 +237,7 @@ var WebsocketClientJson = /** @class */ (function () {
             this.socket.send(this.encoder.encode(JSON.stringify({
                 type: rpc_1.RpcType.Heartbeat
             })));
-            this.headTimeout = false;
+            this.headTimeout = true;
         }
     };
     return WebsocketClientJson;

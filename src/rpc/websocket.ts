@@ -150,7 +150,7 @@ export class WebsocketClientJson implements Client {
 
     private async onMessage(event: MessageEvent) {
         try {
-            this.headTimeout = true
+            this.headTimeout = false
 
             let value: ArrayBuffer
             if (event.data instanceof Blob) {
@@ -191,7 +191,7 @@ export class WebsocketClientJson implements Client {
 
     private onHeartbeat() {
         if (this.socket?.OPEN) {
-            if (!this.headTimeout) {
+            if (this.headTimeout) {
                 this.socket.close()
                 this.connect(this.prams)
                 return
@@ -199,7 +199,7 @@ export class WebsocketClientJson implements Client {
             this.socket.send(this.encoder.encode(JSON.stringify({
                 type: RpcType.Heartbeat
             })))
-            this.headTimeout = false
+            this.headTimeout = true
         }
     }
 }
