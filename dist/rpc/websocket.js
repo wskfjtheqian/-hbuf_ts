@@ -168,7 +168,7 @@ var WebsocketClientJson = /** @class */ (function () {
                     case 0:
                         _c.trys.push([0, 7, , 8]);
                         value = void 0;
-                        if (!Object.is(event.data, Blob)) return [3 /*break*/, 2];
+                        if (!(event.data instanceof Blob)) return [3 /*break*/, 2];
                         return [4 /*yield*/, event.data.arrayBuffer()];
                     case 1:
                         value = _c.sent();
