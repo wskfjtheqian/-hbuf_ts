@@ -78,6 +78,9 @@ export class HttpClientJson implements Client {
                         reject(request.responseText)
                     }
                     let data = this.responseInterceptor.invoke(request, null, this.responseInterceptor.next)
+                    if (null == fromJson) {
+                        resolve(null as T)
+                    }
                     let result = JSON.parse(data) as Result
                     if (0 != result.code) {
                         reject(result)

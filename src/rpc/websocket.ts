@@ -90,22 +90,25 @@ export class WebsocketClientJson implements Client {
     }
 
 
-    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: (json: {}) => T, fromData: (json: BinaryData) => T): Promise<T> {
+    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: ((json: {}) => T) | null, fromData: ((json: BinaryData) => T) | null): Promise<T> {
         this.requestId++
         let header = new Map();
         let data = new RpcData(
-            RpcType.Request,
+            fromJson ? RpcType.Request : RpcType.Broadcast,
             this.requestId,
             "/" + serverName + "/" + name,
             0,
         )
         data.data = req
         return this.interceptor.invoke(data, this.interceptor.next).then((value): T => {
-            let result = value.data as Result
-            if (0 == result.code) {
-                return fromJson(result.data || {})
+            if (fromJson) {
+                let result = value.data as Result
+                if (0 == result.code) {
+                    return fromJson(result.data || {})
+                }
+                throw result
             }
-            throw result
+            return null as T
         })
     }
 
@@ -160,8 +163,8 @@ export class WebsocketClientJson implements Client {
             }
 
             let response = JSON.parse(this.decoder.decode(new Uint8Array(value))) as RpcData
-            if (response.type == RpcType.Request) {
-                await this.onRequest(response)
+            if (response.type == RpcType.Request || response.type == RpcType.Broadcast) {
+                await this.onRequest(response, response.type == RpcType.Broadcast)
             } else if (response.type == RpcType.Response) {
                 if (response.status == 200) {
                     this.requestMap.get(response.id)?.resolve(response)
@@ -174,7 +177,11 @@ export class WebsocketClientJson implements Client {
         }
     }
 
-    private async onRequest(request: RpcData) {
+    private async onRequest(request: RpcData, broadcast: boolean) {
+        if (broadcast) {
+            this.server?.invoke(request)
+            return
+        }
         let data: RpcData
         if (this.server) {
             data = await this.server.invoke(request)

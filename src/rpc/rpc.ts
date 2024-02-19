@@ -67,8 +67,8 @@ export interface Client {
         name: string,
         id: number,
         req: Data,
-        fromJson: (json: {}) => T,
-        fromData: (json: BinaryData) => T,
+        fromJson: ((json: {}) => T) | null,
+        fromData: ((json: BinaryData) => T) | null,
     ): Promise<T>;
 }
 
@@ -87,8 +87,8 @@ export abstract class ServerClient {
         name: string,
         id: number,
         req: Data,
-        fromJson: (json: {}) => T,
-        fromData: (json: BinaryData) => T,
+        fromJson: ((json: {}) => T) | null,
+        fromData: ((json: BinaryData) => T) | null,
     ): Promise<T> {
         return this._client.invoke(
             this.name,
