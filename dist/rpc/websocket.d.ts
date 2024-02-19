@@ -1,6 +1,6 @@
 import { Client, RpcData, Server } from "./rpc";
 import { Data } from "../hbuf/data";
-type SocketInvoke = (data: RpcData, next?: SocketInterceptor) => Promise<RpcData>;
+type SocketInvoke = (data: RpcData, next?: SocketInterceptor) => Promise<RpcData | void>;
 export declare class SocketInterceptor {
     constructor(invoke: SocketInvoke, next?: SocketInterceptor);
     invoke: SocketInvoke;
@@ -30,7 +30,7 @@ export declare class WebsocketClientJson implements Client {
     addInterceptor(invoke: SocketInvoke): void;
     insertInterceptor(invoke: SocketInvoke): void;
     private socketInvoke;
-    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: (json: {}) => T, fromData: (json: BinaryData) => T): Promise<T>;
+    invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: ((json: {}) => T) | null, fromData: ((json: BinaryData) => T) | null): Promise<T>;
     connect(prams?: Record<string, string[]>): Promise<void>;
     close(): void;
     private onClose;
