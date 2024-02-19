@@ -1,7 +1,7 @@
 import {Client, Result, RpcData, RpcType, Server} from "./rpc";
 import {Data} from "../hbuf/data";
 
-type SocketInvoke = (data: RpcData, next?: SocketInterceptor) => Promise<RpcData>
+type SocketInvoke = (data: RpcData, next?: SocketInterceptor) => Promise<RpcData | void>
 
 
 export class SocketInterceptor {
@@ -62,29 +62,31 @@ export class WebsocketClientJson implements Client {
         this.interceptor = new SocketInterceptor(invoke, this.interceptor)
     }
 
-    private socketInvoke(data: RpcData, next?: SocketInterceptor): Promise<RpcData> {
-        const ret = new Promise<RpcData>((resolve, reject) => {
-            let promise = new PromiseCall((value) => {
-                if (this.requestMap.delete(data.id)) {
-                    resolve(value)
+    private socketInvoke(data: RpcData, next?: SocketInterceptor): Promise<RpcData | void> {
+        var ret: Promise<any> = Promise.resolve()
+        if (data.type == RpcType.Request) {
+            ret = new Promise<RpcData>((resolve, reject) => {
+                let promise = new PromiseCall((value) => {
+                    if (this.requestMap.delete(data.id)) {
+                        resolve(value)
+                    }
+                }, (e) => {
+                    if (this.requestMap.delete(data.id)) {
+                        reject(e)
+                    }
+                })
+                setTimeout(() => {
+                    reject("timeout")
+                }, this.readTimeout)
+                this.requestMap.set(data.id, promise)
+            }).then((value: RpcData) => {
+                if (next != null) {
+                    return next.invoke(value, next.next)
+                } else {
+                    return value
                 }
-            }, (e) => {
-                if (this.requestMap.delete(data.id)) {
-                    reject(e)
-                }
-            })
-            setTimeout(() => {
-                reject("timeout")
-            }, this.readTimeout)
-            this.requestMap.set(data.id, promise)
-        }).then((value: RpcData) => {
-            if (next != null) {
-                return next.invoke(value, next.next)
-            } else {
-                return value
-            }
-        });
-
+            });
+        }
         this.socket?.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer)
         return ret
     }
@@ -102,7 +104,7 @@ export class WebsocketClientJson implements Client {
         data.data = req
         return this.interceptor.invoke(data, this.interceptor.next).then((value): T => {
             if (fromJson) {
-                let result = value.data as Result
+                let result = (value as RpcData).data as Result
                 if (0 == result.code) {
                     return fromJson(result.data || {})
                 }

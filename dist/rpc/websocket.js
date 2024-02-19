@@ -82,42 +82,48 @@ var WebsocketClientJson = /** @class */ (function () {
     WebsocketClientJson.prototype.socketInvoke = function (data, next) {
         var _this = this;
         var _a;
-        var ret = new Promise(function (resolve, reject) {
-            var promise = new PromiseCall(function (value) {
-                if (_this.requestMap.delete(data.id)) {
-                    resolve(value);
+        var ret = Promise.resolve();
+        if (data.type == rpc_1.RpcType.Request) {
+            ret = new Promise(function (resolve, reject) {
+                var promise = new PromiseCall(function (value) {
+                    if (_this.requestMap.delete(data.id)) {
+                        resolve(value);
+                    }
+                }, function (e) {
+                    if (_this.requestMap.delete(data.id)) {
+                        reject(e);
+                    }
+                });
+                setTimeout(function () {
+                    reject("timeout");
+                }, _this.readTimeout);
+                _this.requestMap.set(data.id, promise);
+            }).then(function (value) {
+                if (next != null) {
+                    return next.invoke(value, next.next);
                 }
-            }, function (e) {
-                if (_this.requestMap.delete(data.id)) {
-                    reject(e);
+                else {
+                    return value;
                 }
             });
-            setTimeout(function () {
-                reject("timeout");
-            }, _this.readTimeout);
-            _this.requestMap.set(data.id, promise);
-        }).then(function (value) {
-            if (next != null) {
-                return next.invoke(value, next.next);
-            }
-            else {
-                return value;
-            }
-        });
+        }
         (_a = this.socket) === null || _a === void 0 ? void 0 : _a.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer);
         return ret;
     };
     WebsocketClientJson.prototype.invoke = function (serverName, serverId, name, id, req, fromJson, fromData) {
         this.requestId++;
         var header = new Map();
-        var data = new rpc_1.RpcData(rpc_1.RpcType.Request, this.requestId, "/" + serverName + "/" + name, 0);
+        var data = new rpc_1.RpcData(fromJson ? rpc_1.RpcType.Request : rpc_1.RpcType.Broadcast, this.requestId, "/" + serverName + "/" + name, 0);
         data.data = req;
         return this.interceptor.invoke(data, this.interceptor.next).then(function (value) {
-            var result = value.data;
-            if (0 == result.code) {
-                return fromJson(result.data || {});
+            if (fromJson) {
+                var result = value.data;
+                if (0 == result.code) {
+                    return fromJson(result.data || {});
+                }
+                throw result;
             }
-            throw result;
+            return null;
         });
     };
     WebsocketClientJson.prototype.connect = function (prams) {
@@ -179,8 +185,8 @@ var WebsocketClientJson = /** @class */ (function () {
                         _c.label = 3;
                     case 3:
                         response = JSON.parse(this.decoder.decode(new Uint8Array(value)));
-                        if (!(response.type == rpc_1.RpcType.Request)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.onRequest(response)];
+                        if (!(response.type == rpc_1.RpcType.Request || response.type == rpc_1.RpcType.Broadcast)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.onRequest(response, response.type == rpc_1.RpcType.Broadcast)];
                     case 4:
                         _c.sent();
                         return [3 /*break*/, 6];
@@ -204,23 +210,27 @@ var WebsocketClientJson = /** @class */ (function () {
             });
         });
     };
-    WebsocketClientJson.prototype.onRequest = function (request) {
-        var _a;
+    WebsocketClientJson.prototype.onRequest = function (request, broadcast) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
             var data;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
+                        if (broadcast) {
+                            (_a = this.server) === null || _a === void 0 ? void 0 : _a.invoke(request);
+                            return [2 /*return*/];
+                        }
                         if (!this.server) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.server.invoke(request)];
                     case 1:
-                        data = _b.sent();
+                        data = _c.sent();
                         return [3 /*break*/, 3];
                     case 2:
                         data = new rpc_1.RpcData(rpc_1.RpcType.Response, request.id, "", 404);
-                        _b.label = 3;
+                        _c.label = 3;
                     case 3:
-                        (_a = this.socket) === null || _a === void 0 ? void 0 : _a.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer);
+                        (_b = this.socket) === null || _b === void 0 ? void 0 : _b.send(this.encoder.encode(JSON.stringify(data.toJson())).buffer);
                         return [2 /*return*/];
                 }
             });
