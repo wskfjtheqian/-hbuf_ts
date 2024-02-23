@@ -11,7 +11,7 @@ export declare class Result implements Data {
     constructor(code: number, msg: string);
     code: number;
     msg: string;
-    data?: Data;
+    data?: Data | void;
     toData(): BinaryData;
     toJson(): Record<string, any>;
 }
@@ -39,7 +39,7 @@ export declare abstract class ServerClient {
 export interface ServerInvoke {
     formData(buf: BinaryData | Record<string, any>): Data;
     toData(data: Data): BinaryData | Record<string, any>;
-    invoke(data: Data, ctx?: Context): Promise<Data>;
+    invoke(data: Data, ctx?: Context): Promise<Data | void>;
 }
 export interface ServerRouter {
     getName(): string;

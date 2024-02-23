@@ -23,8 +23,7 @@ export declare class WebsocketClientJson implements Client {
     private interval;
     private heartbeat;
     private headTimeout;
-    private prams;
-    private isOpen;
+    onclose?: ((this: WebsocketClientJson, code: string) => any) | null;
     constructor(baseUrl: string, server?: Server);
     protected interceptor: SocketInterceptor;
     addInterceptor(invoke: SocketInvoke): void;
@@ -33,7 +32,6 @@ export declare class WebsocketClientJson implements Client {
     invoke<T>(serverName: string, serverId: number, name: string, id: number, req: Data, fromJson: ((json: {}) => T) | null, fromData: ((json: BinaryData) => T) | null): Promise<T>;
     connect(prams?: Record<string, string[]>): Promise<void>;
     close(): void;
-    private onClose;
     private onMessage;
     private onRequest;
     private onHeartbeat;

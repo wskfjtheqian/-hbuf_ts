@@ -18,7 +18,7 @@ export class Result implements Data {
 
     code: number
     msg: string
-    data?: Data
+    data?: Data | void
 
     toData(): BinaryData {
         return new ArrayBuffer(0);
@@ -112,7 +112,7 @@ export interface ServerInvoke {
 
     toData(data: Data): BinaryData | Record<string, any>
 
-    invoke(data: Data, ctx?: Context): Promise<Data>
+    invoke(data: Data, ctx?: Context): Promise<Data | void>
 }
 
 export interface ServerRouter {

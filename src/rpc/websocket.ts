@@ -39,8 +39,7 @@ export class WebsocketClientJson implements Client {
     private interval: number | null = null;
     private heartbeat: number = 30000;
     private headTimeout: boolean = false;
-    private prams: Record<string, string[]> | undefined;
-    private isOpen: boolean = false;
+    public onclose?: ((this: WebsocketClientJson, code: string) => any) | null;
 
     constructor(baseUrl: string, server?: Server) {
         this.baseUrl = baseUrl;
@@ -115,7 +114,6 @@ export class WebsocketClientJson implements Client {
     }
 
     public connect(prams?: Record<string, string[]>): Promise<void> {
-        this.prams = prams
         let url = this.baseUrl
         if (prams) {
             let temp = ""
@@ -129,12 +127,18 @@ export class WebsocketClientJson implements Client {
             }
         }
         return new Promise((resolve, reject) => {
+            clearInterval(this.interval ?? 0)
             try {
-                this.socket = new WebSocket(url)
-                this.socket.onclose = (event) => this.onClose(event)
+                this.socket = new WebSocket(url, ['true', 'false'])
+                this.socket.onclose = (event) => {
+                    clearInterval(this.interval ?? 0)
+                    this.onclose?.call(this, event.code == 4401 ? "auth failed" : "close")
+                }
                 this.socket.onerror = (event) => reject(event)
                 this.socket.onmessage = (event) => this.onMessage(event)
-                this.socket.onopen = (event) => resolve()
+                this.socket.onopen = (event) => {
+                    resolve()
+                }
                 this.interval = setInterval(() => this.onHeartbeat(), this.heartbeat)
             } catch (e) {
                 reject(e)
@@ -143,14 +147,8 @@ export class WebsocketClientJson implements Client {
     }
 
     public close() {
-        this.isOpen = false
+        clearInterval(this.interval ?? 0)
         this.socket?.close()
-    }
-
-    private onClose(event: CloseEvent) {
-        if (this.isOpen) {
-            this.connect(this.prams)
-        }
     }
 
     private async onMessage(event: MessageEvent) {
@@ -202,7 +200,8 @@ export class WebsocketClientJson implements Client {
         if (this.socket?.OPEN) {
             if (this.headTimeout) {
                 this.socket.close()
-                this.connect(this.prams)
+                clearInterval(this.interval ?? 0)
+                this.onclose?.call(this, "timeout")
                 return
             }
             this.socket.send(this.encoder.encode(JSON.stringify({
