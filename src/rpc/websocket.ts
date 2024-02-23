@@ -115,21 +115,18 @@ export class WebsocketClientJson implements Client {
 
     public connect(prams?: Record<string, string[]>): Promise<void> {
         let url = this.baseUrl
+        let temp = ""
         if (prams) {
-            let temp = ""
             for (const key in prams) {
                 for (const index in prams[key]) {
                     temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(prams[key][index])
                 }
             }
-            if (temp.length > 0) {
-                url += (-1 == url.indexOf("?") ? "?" : "&") + temp.substring(1);
-            }
         }
         return new Promise((resolve, reject) => {
             clearInterval(this.interval ?? 0)
             try {
-                this.socket = new WebSocket(url, ['true', 'false'])
+                this.socket = new WebSocket(url, [encodeURIComponent(temp)])
                 this.socket.onclose = (event) => {
                     clearInterval(this.interval ?? 0)
                     this.onclose?.call(this, event.code == 4401 ? "auth failed" : "close")
