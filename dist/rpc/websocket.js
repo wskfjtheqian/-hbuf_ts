@@ -136,25 +136,66 @@ var WebsocketClientJson = /** @class */ (function () {
                 }
             }
         }
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, r) {
             var _a;
+            var reject = r;
             clearInterval((_a = _this.interval) !== null && _a !== void 0 ? _a : 0);
             try {
                 _this.socket = new WebSocket(url, [encodeURIComponent(temp)]);
                 _this.socket.onclose = function (event) {
                     var _a, _b;
                     clearInterval((_a = _this.interval) !== null && _a !== void 0 ? _a : 0);
-                    (_b = _this.onclose) === null || _b === void 0 ? void 0 : _b.call(_this, event.code == 4401 ? "auth failed" : "close");
+                    (_b = _this.onclose) === null || _b === void 0 ? void 0 : _b.call(_this, event.reason);
                 };
-                _this.socket.onerror = function (event) { return reject(event); };
-                _this.socket.onmessage = function (event) { return _this.onMessage(event); };
+                _this.socket.onerror = function (event) {
+                    reject === null || reject === void 0 ? void 0 : reject.call(_this, event);
+                    reject = null;
+                };
+                _this.socket.onmessage = function (event) { return __awaiter(_this, void 0, void 0, function () {
+                    var value, _a, response, e_1;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
+                            case 0:
+                                _b.trys.push([0, 8, , 9]);
+                                if (!(event.data instanceof Blob)) return [3 /*break*/, 2];
+                                return [4 /*yield*/, event.data.arrayBuffer()];
+                            case 1:
+                                _a = _b.sent();
+                                return [3 /*break*/, 3];
+                            case 2:
+                                _a = event.data;
+                                _b.label = 3;
+                            case 3:
+                                value = _a;
+                                response = JSON.parse(this.decoder.decode(new Uint8Array(value)));
+                                if (!(response.type === rpc_1.RpcType.AuthSuccess)) return [3 /*break*/, 4];
+                                resolve();
+                                return [3 /*break*/, 7];
+                            case 4:
+                                if (!(response.type === rpc_1.RpcType.AuthFailure)) return [3 /*break*/, 5];
+                                reject === null || reject === void 0 ? void 0 : reject.call(this, "auth failure");
+                                reject = null;
+                                return [3 /*break*/, 7];
+                            case 5: return [4 /*yield*/, this.onMessage(response)];
+                            case 6:
+                                _b.sent();
+                                _b.label = 7;
+                            case 7: return [3 /*break*/, 9];
+                            case 8:
+                                e_1 = _b.sent();
+                                console.log(e_1);
+                                return [3 /*break*/, 9];
+                            case 9: return [2 /*return*/];
+                        }
+                    });
+                }); };
                 _this.socket.onopen = function (event) {
-                    resolve();
+                    _this.interval = setInterval(function () { return _this.onHeartbeat(); }, _this.heartbeat);
                 };
-                _this.interval = setInterval(function () { return _this.onHeartbeat(); }, _this.heartbeat);
             }
             catch (e) {
-                reject(e);
+                reject === null || reject === void 0 ? void 0 : reject.call(_this, e);
+                reject = null;
             }
         });
     };
@@ -163,32 +204,19 @@ var WebsocketClientJson = /** @class */ (function () {
         clearInterval((_a = this.interval) !== null && _a !== void 0 ? _a : 0);
         (_b = this.socket) === null || _b === void 0 ? void 0 : _b.close();
     };
-    WebsocketClientJson.prototype.onMessage = function (event) {
+    WebsocketClientJson.prototype.onMessage = function (response) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var value, response, e_1;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        _c.trys.push([0, 7, , 8]);
                         this.headTimeout = false;
-                        value = void 0;
-                        if (!(event.data instanceof Blob)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, event.data.arrayBuffer()];
+                        if (!(response.type == rpc_1.RpcType.Request || response.type == rpc_1.RpcType.Broadcast)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.onRequest(response, response.type == rpc_1.RpcType.Broadcast)];
                     case 1:
-                        value = _c.sent();
+                        _c.sent();
                         return [3 /*break*/, 3];
                     case 2:
-                        value = event.data;
-                        _c.label = 3;
-                    case 3:
-                        response = JSON.parse(this.decoder.decode(new Uint8Array(value)));
-                        if (!(response.type == rpc_1.RpcType.Request || response.type == rpc_1.RpcType.Broadcast)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.onRequest(response, response.type == rpc_1.RpcType.Broadcast)];
-                    case 4:
-                        _c.sent();
-                        return [3 /*break*/, 6];
-                    case 5:
                         if (response.type == rpc_1.RpcType.Response) {
                             if (response.status == 200) {
                                 (_a = this.requestMap.get(response.id)) === null || _a === void 0 ? void 0 : _a.resolve(response);
@@ -197,13 +225,8 @@ var WebsocketClientJson = /** @class */ (function () {
                                 (_b = this.requestMap.get(response.id)) === null || _b === void 0 ? void 0 : _b.reject(response);
                             }
                         }
-                        _c.label = 6;
-                    case 6: return [3 /*break*/, 8];
-                    case 7:
-                        e_1 = _c.sent();
-                        console.log(e_1);
-                        return [3 /*break*/, 8];
-                    case 8: return [2 /*return*/];
+                        _c.label = 3;
+                    case 3: return [2 /*return*/];
                 }
             });
         });

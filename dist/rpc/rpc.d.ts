@@ -3,7 +3,9 @@ export declare enum RpcType {
     Request = 0,
     Response = 1,
     Broadcast = 2,
-    Heartbeat = 3
+    Heartbeat = 3,
+    AuthSuccess = 4,
+    AuthFailure = 5
 }
 export declare class Context {
 }

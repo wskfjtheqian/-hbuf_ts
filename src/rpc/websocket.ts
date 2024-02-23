@@ -123,22 +123,41 @@ export class WebsocketClientJson implements Client {
                 }
             }
         }
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, r) => {
+            let reject: ((reason?: any) => void) | null = r
             clearInterval(this.interval ?? 0)
             try {
                 this.socket = new WebSocket(url, [encodeURIComponent(temp)])
                 this.socket.onclose = (event) => {
                     clearInterval(this.interval ?? 0)
-                    this.onclose?.call(this, event.code == 4401 ? "auth failed" : "close")
+                    this.onclose?.call(this, event.reason)
                 }
-                this.socket.onerror = (event) => reject(event)
-                this.socket.onmessage = (event) => this.onMessage(event)
+                this.socket.onerror = (event) => {
+                    reject?.call(this, event)
+                    reject = null
+                }
+                this.socket.onmessage = async (event) => {
+                    try {
+                        let value: ArrayBuffer = event.data instanceof Blob ? await (event.data as Blob).arrayBuffer() : event.data
+                        let response = JSON.parse(this.decoder.decode(new Uint8Array(value))) as RpcData
+                        if (response.type === RpcType.AuthSuccess) {
+                            resolve()
+                        } else if (response.type === RpcType.AuthFailure) {
+                            reject?.call(this, "auth failure")
+                            reject = null
+                        } else {
+                            await this.onMessage(response)
+                        }
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
                 this.socket.onopen = (event) => {
-                    resolve()
+                    this.interval = setInterval(() => this.onHeartbeat(), this.heartbeat)
                 }
-                this.interval = setInterval(() => this.onHeartbeat(), this.heartbeat)
             } catch (e) {
-                reject(e)
+                reject?.call(this, e)
+                reject = null
             }
         })
     }
@@ -148,29 +167,17 @@ export class WebsocketClientJson implements Client {
         this.socket?.close()
     }
 
-    private async onMessage(event: MessageEvent) {
-        try {
-            this.headTimeout = false
+    private async onMessage(response: RpcData) {
+        this.headTimeout = false
 
-            let value: ArrayBuffer
-            if (event.data instanceof Blob) {
-                value = await (event.data as Blob).arrayBuffer();
+        if (response.type == RpcType.Request || response.type == RpcType.Broadcast) {
+            await this.onRequest(response, response.type == RpcType.Broadcast)
+        } else if (response.type == RpcType.Response) {
+            if (response.status == 200) {
+                this.requestMap.get(response.id)?.resolve(response)
             } else {
-                value = event.data
+                this.requestMap.get(response.id)?.reject(response)
             }
-
-            let response = JSON.parse(this.decoder.decode(new Uint8Array(value))) as RpcData
-            if (response.type == RpcType.Request || response.type == RpcType.Broadcast) {
-                await this.onRequest(response, response.type == RpcType.Broadcast)
-            } else if (response.type == RpcType.Response) {
-                if (response.status == 200) {
-                    this.requestMap.get(response.id)?.resolve(response)
-                } else {
-                    this.requestMap.get(response.id)?.reject(response)
-                }
-            }
-        } catch (e) {
-            console.log(e)
         }
     }
 
