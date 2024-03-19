@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Server = exports.SocketInterceptor = exports.RpcData = exports.WebsocketClientJson = exports.arrayMap = exports.waiting = exports.HttpResponseInterceptor = exports.HttpRequestInterceptor = exports.HttpClientJson = exports.ServerClient = exports.Result = exports.Context = void 0;
+exports.Server = exports.SocketInterceptor = exports.RpcData = exports.WebsocketClientJson = exports.RecordEntry = exports.Long = exports.isRecord = exports.isArray = exports.convertArray = exports.convertRecord = exports.waiting = exports.HttpResponseInterceptor = exports.HttpRequestInterceptor = exports.HttpClientJson = exports.ServerClient = exports.Result = exports.Context = void 0;
 var rpc_1 = require("./rpc/rpc");
 Object.defineProperty(exports, "Context", { enumerable: true, get: function () { return rpc_1.Context; } });
 Object.defineProperty(exports, "Result", { enumerable: true, get: function () { return rpc_1.Result; } });
@@ -16,4 +16,10 @@ Object.defineProperty(exports, "SocketInterceptor", { enumerable: true, get: fun
 Object.defineProperty(exports, "WebsocketClientJson", { enumerable: true, get: function () { return websocket_1.WebsocketClientJson; } });
 var tools_1 = require("./utils/tools");
 Object.defineProperty(exports, "waiting", { enumerable: true, get: function () { return tools_1.waiting; } });
-Object.defineProperty(exports, "arrayMap", { enumerable: true, get: function () { return tools_1.arrayMap; } });
+Object.defineProperty(exports, "convertRecord", { enumerable: true, get: function () { return tools_1.convertRecord; } });
+Object.defineProperty(exports, "convertArray", { enumerable: true, get: function () { return tools_1.convertArray; } });
+Object.defineProperty(exports, "RecordEntry", { enumerable: true, get: function () { return tools_1.RecordEntry; } });
+Object.defineProperty(exports, "isArray", { enumerable: true, get: function () { return tools_1.isArray; } });
+Object.defineProperty(exports, "isRecord", { enumerable: true, get: function () { return tools_1.isRecord; } });
+var long_1 = require("./utils/long");
+Object.defineProperty(exports, "Long", { enumerable: true, get: function () { return long_1.Long; } });

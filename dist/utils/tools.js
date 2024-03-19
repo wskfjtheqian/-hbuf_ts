@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapMap = exports.arrayMap = exports.waiting = void 0;
+exports.isArray = exports.isRecord = exports.convertRecord = exports.RecordEntry = exports.convertArray = exports.waiting = void 0;
 //等待指定时间 （毫秒）
 function waiting(time) {
     return __awaiter(this, void 0, void 0, function () {
@@ -48,19 +48,50 @@ function waiting(time) {
     });
 }
 exports.waiting = waiting;
-function arrayMap(list, call) {
+function convertArray(list, call) {
     var ret = new Array(list.length);
     for (var key in list) {
         ret[key] = call(list[key]);
     }
     return ret;
 }
-exports.arrayMap = arrayMap;
-function mapMap(list, call) {
-    var ret = new Array(list.length);
-    for (var key in list) {
-        ret[key] = call(list[key]);
+exports.convertArray = convertArray;
+var RecordEntry = /** @class */ (function () {
+    function RecordEntry(key, val) {
+        this._key = key;
+        this._val = val;
+    }
+    Object.defineProperty(RecordEntry.prototype, "val", {
+        get: function () {
+            return this._val;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(RecordEntry.prototype, "key", {
+        get: function () {
+            return this._key;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return RecordEntry;
+}());
+exports.RecordEntry = RecordEntry;
+function convertRecord(record, call) {
+    var ret = {};
+    for (var key in record) {
+        var val = call(key, record[key]);
+        ret[val.key] = val.val;
     }
     return ret;
 }
-exports.mapMap = mapMap;
+exports.convertRecord = convertRecord;
+function isRecord(o) {
+    return Object.getPrototypeOf({}) === Object.getPrototypeOf(o);
+}
+exports.isRecord = isRecord;
+function isArray(o) {
+    return Object.getPrototypeOf([]) === Object.getPrototypeOf(o);
+}
+exports.isArray = isArray;

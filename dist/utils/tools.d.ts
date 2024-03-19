@@ -1,3 +1,12 @@
 export declare function waiting(time: number): Promise<void>;
-export declare function arrayMap<T>(list: [], call: (item: any) => T): T[];
-export declare function mapMap<T, E>(list: [], call: (item: any) => T): T[];
+export declare function convertArray<T>(list: [], call: (item: any) => T): T[];
+export declare class RecordEntry<T extends keyof any, E> {
+    get val(): E;
+    get key(): T;
+    private _key;
+    private _val;
+    constructor(key: T, val: E);
+}
+export declare function convertRecord<T extends keyof any, E, A extends keyof any, B>(record: Record<T, E>, call: (key: T, val: E) => RecordEntry<A, B>): Record<A, B>;
+export declare function isRecord(o: any): boolean;
+export declare function isArray(o: any): boolean;

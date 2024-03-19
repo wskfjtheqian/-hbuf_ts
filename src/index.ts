@@ -2,7 +2,8 @@ import {Data} from "./hbuf/data";
 import {Context, Result, Client, ServerClient, RpcData, ServerRouter, ServerInvoke, Server} from "./rpc/rpc";
 import {HttpClientJson, HttpRequestInterceptor, HttpResponseInterceptor} from "./rpc/http";
 import {SocketInterceptor, WebsocketClientJson} from "./rpc/websocket";
-import {waiting, arrayMap} from "./utils/tools";
+import {waiting, convertRecord, convertArray, RecordEntry, isArray, isRecord} from "./utils/tools";
+import {Long} from "./utils/long";
 
 export {
     Data,
@@ -14,7 +15,12 @@ export {
     HttpRequestInterceptor,
     HttpResponseInterceptor,
     waiting,
-    arrayMap,
+    convertRecord,
+    convertArray,
+    isArray,
+    isRecord,
+    Long,
+    RecordEntry,
     WebsocketClientJson,
     RpcData,
     SocketInterceptor,
