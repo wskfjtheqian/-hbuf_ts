@@ -3,3 +3,4 @@ export interface Data {
 
     toJson(): Record<string, any>
 }
+

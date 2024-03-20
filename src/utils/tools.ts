@@ -5,8 +5,11 @@ export async function waiting(time: number): Promise<void> {
     })
 }
 
-export function convertArray<T>(list: [], call: (item: any) => T): T[] {
-    let ret: T[] = new Array(list.length)
+export function convertArray<T, E>(list: T[] | null, call: (item: T) => E): E[] | null {
+    if (null == list) {
+        return null
+    }
+    let ret: E[] = new Array(list.length)
     for (const key in list) {
         ret[key] = call(list[key])
     }
@@ -31,7 +34,10 @@ export class RecordEntry<T extends keyof any, E> {
     }
 }
 
-export function convertRecord<T extends keyof any, E, A extends keyof any, B, >(record: Record<T, E>, call: (key: T, val: E) => RecordEntry<A, B>): Record<A, B> {
+export function convertRecord<T extends keyof any, E, A extends keyof any, B, >(record: Record<T, E> | null, call: (key: T, val: E) => RecordEntry<A, B>): Record<A, B> | null {
+    if (null == record) {
+        return null
+    }
     let ret: Record<A, B> = {} as Record<A, B>
     for (const key in record) {
         let val = call(key, record [key])

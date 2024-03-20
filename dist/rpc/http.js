@@ -54,10 +54,12 @@ var HttpClientJson = /** @class */ (function () {
                 if (request.readyState === 4) {
                     if (request.status !== 200) {
                         reject(request.responseText);
+                        return;
                     }
                     var data = _this.responseInterceptor.invoke(request, null, _this.responseInterceptor.next);
                     if (null == fromJson) {
                         resolve(null);
+                        return;
                     }
                     var result = JSON.parse(data);
                     if (0 != result.code) {

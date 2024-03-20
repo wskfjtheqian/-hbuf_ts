@@ -3,8 +3,6 @@ import {Context, Result, Client, ServerClient, RpcData, ServerRouter, ServerInvo
 import {HttpClientJson, HttpRequestInterceptor, HttpResponseInterceptor} from "./rpc/http";
 import {SocketInterceptor, WebsocketClientJson} from "./rpc/websocket";
 import {waiting, convertRecord, convertArray, RecordEntry, isArray, isRecord} from "./utils/tools";
-import {Long} from "./utils/long";
-
 export {
     Data,
     Context,
@@ -19,7 +17,6 @@ export {
     convertArray,
     isArray,
     isRecord,
-    Long,
     RecordEntry,
     WebsocketClientJson,
     RpcData,

@@ -76,10 +76,12 @@ export class HttpClientJson implements Client {
                 if (request.readyState === 4) {
                     if (request.status !== 200) {
                         reject(request.responseText)
+                        return
                     }
                     let data = this.responseInterceptor.invoke(request, null, this.responseInterceptor.next)
                     if (null == fromJson) {
                         resolve(null as T)
+                        return
                     }
                     let result = JSON.parse(data) as Result
                     if (0 != result.code) {

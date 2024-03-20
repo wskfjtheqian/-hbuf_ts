@@ -3,5 +3,4 @@ import { Context, Result, Client, ServerClient, RpcData, ServerRouter, ServerInv
 import { HttpClientJson, HttpRequestInterceptor, HttpResponseInterceptor } from "./rpc/http";
 import { SocketInterceptor, WebsocketClientJson } from "./rpc/websocket";
 import { waiting, convertRecord, convertArray, RecordEntry, isArray, isRecord } from "./utils/tools";
-import { Long } from "./utils/long";
-export { Data, Context, Result, Client, ServerClient, HttpClientJson, HttpRequestInterceptor, HttpResponseInterceptor, waiting, convertRecord, convertArray, isArray, isRecord, Long, RecordEntry, WebsocketClientJson, RpcData, SocketInterceptor, Server, ServerRouter, ServerInvoke, };
+export { Data, Context, Result, Client, ServerClient, HttpClientJson, HttpRequestInterceptor, HttpResponseInterceptor, waiting, convertRecord, convertArray, isArray, isRecord, RecordEntry, WebsocketClientJson, RpcData, SocketInterceptor, Server, ServerRouter, ServerInvoke, };

@@ -49,6 +49,9 @@ function waiting(time) {
 }
 exports.waiting = waiting;
 function convertArray(list, call) {
+    if (null == list) {
+        return null;
+    }
     var ret = new Array(list.length);
     for (var key in list) {
         ret[key] = call(list[key]);
@@ -79,6 +82,9 @@ var RecordEntry = /** @class */ (function () {
 }());
 exports.RecordEntry = RecordEntry;
 function convertRecord(record, call) {
+    if (null == record) {
+        return null;
+    }
     var ret = {};
     for (var key in record) {
         var val = call(key, record[key]);
