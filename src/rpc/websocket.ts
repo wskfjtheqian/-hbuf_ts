@@ -113,13 +113,13 @@ export class WebsocketClientJson implements Client {
         })
     }
 
-    public connect(prams?: Record<string, string[]>): Promise<void> {
+    public connect(params?: Record<string, string[]>): Promise<void> {
         let url = this.baseUrl
         let temp = ""
-        if (prams) {
-            for (const key in prams) {
-                for (const index in prams[key]) {
-                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(prams[key][index])
+        if (params) {
+            for (const key in params) {
+                for (const index in params[key]) {
+                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key][index])
                 }
             }
         }
