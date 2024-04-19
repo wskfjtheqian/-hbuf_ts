@@ -10,3 +10,4 @@ export declare class RecordEntry<T extends keyof any, E> {
 export declare function convertRecord<T extends keyof any, E, A extends keyof any, B>(record: Record<T, E> | null, call: (key: T, val: E) => RecordEntry<A, B>): Record<A, B> | null;
 export declare function isRecord(o: any): boolean;
 export declare function isArray(o: any): boolean;
+export declare function formatDate(date: Date | string | number, format?: string): string;

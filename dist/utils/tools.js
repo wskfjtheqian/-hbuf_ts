@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isArray = exports.isRecord = exports.convertRecord = exports.RecordEntry = exports.convertArray = exports.waiting = void 0;
+exports.formatDate = exports.isArray = exports.isRecord = exports.convertRecord = exports.RecordEntry = exports.convertArray = exports.waiting = void 0;
 //等待指定时间 （毫秒）
 function waiting(time) {
     return __awaiter(this, void 0, void 0, function () {
@@ -101,3 +101,35 @@ function isArray(o) {
     return Object.getPrototypeOf([]) === Object.getPrototypeOf(o);
 }
 exports.isArray = isArray;
+function formatDate(date, format) {
+    if (!format)
+        format = "yyyy-MM-dd";
+    switch (typeof date) {
+        case "string":
+            date = new Date(date.replace(/-/g, "/"));
+            break;
+        case "number":
+            date = new Date(date);
+            break;
+    }
+    if (date instanceof Date) {
+        var dict_1 = {
+            yyyy: date.getFullYear(),
+            M: date.getMonth() + 1,
+            d: date.getDate(),
+            H: date.getHours(),
+            m: date.getMinutes(),
+            s: date.getSeconds(),
+            MM: ("" + (date.getMonth() + 101)).substr(1),
+            dd: ("" + (date.getDate() + 100)).substr(1),
+            HH: ("" + (date.getHours() + 100)).substr(1),
+            mm: ("" + (date.getMinutes() + 100)).substr(1),
+            ss: ("" + (date.getSeconds() + 100)).substr(1)
+        };
+        return format.replace(/(yyyy|MM?|dd?|HH?|ss?|mm?)/g, function () {
+            return dict_1[arguments[0]];
+        });
+    }
+    return "" + date;
+}
+exports.formatDate = formatDate;

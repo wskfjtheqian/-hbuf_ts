@@ -125,14 +125,14 @@ var WebsocketClientJson = /** @class */ (function () {
             return null;
         });
     };
-    WebsocketClientJson.prototype.connect = function (prams) {
+    WebsocketClientJson.prototype.connect = function (params) {
         var _this = this;
         var url = this.baseUrl;
         var temp = "";
-        if (prams) {
-            for (var key in prams) {
-                for (var index in prams[key]) {
-                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(prams[key][index]);
+        if (params) {
+            for (var key in params) {
+                for (var index in params[key]) {
+                    temp += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key][index]);
                 }
             }
         }
