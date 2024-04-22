@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Server = exports.SocketInterceptor = exports.RpcData = exports.WebsocketClientJson = exports.RecordEntry = exports.isRecord = exports.isArray = exports.convertArray = exports.convertRecord = exports.waiting = exports.HttpResponseInterceptor = exports.HttpRequestInterceptor = exports.HttpClientJson = exports.ServerClient = exports.Result = exports.Context = void 0;
+exports.Server = exports.SocketInterceptor = exports.RpcData = exports.WebsocketClientJson = exports.RecordEntry = exports.formatDate = exports.isRecord = exports.isArray = exports.convertArray = exports.convertRecord = exports.waiting = exports.HttpResponseInterceptor = exports.HttpRequestInterceptor = exports.HttpClientJson = exports.ServerClient = exports.Result = exports.Context = void 0;
 var rpc_1 = require("./rpc/rpc");
 Object.defineProperty(exports, "Context", { enumerable: true, get: function () { return rpc_1.Context; } });
 Object.defineProperty(exports, "Result", { enumerable: true, get: function () { return rpc_1.Result; } });
@@ -21,3 +21,4 @@ Object.defineProperty(exports, "convertArray", { enumerable: true, get: function
 Object.defineProperty(exports, "RecordEntry", { enumerable: true, get: function () { return tools_1.RecordEntry; } });
 Object.defineProperty(exports, "isArray", { enumerable: true, get: function () { return tools_1.isArray; } });
 Object.defineProperty(exports, "isRecord", { enumerable: true, get: function () { return tools_1.isRecord; } });
+Object.defineProperty(exports, "formatDate", { enumerable: true, get: function () { return tools_1.formatDate; } });
